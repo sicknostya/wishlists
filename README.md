@@ -10,10 +10,27 @@ Web service for creating and managing wishlists
 
 app will starts at http://localhost:3000
 
-## for backend:
+## for docker:
 
-- install python 3.13.2
-- cd backend
-- python manage.py runserver
+- docker-compose up
 
-app will starts at http://127.0.0.1:8000/
+app will starts at http://localhost:8000/
+
+## other (for dev):
+
+- docker compose exec backend python manage.py loaddata wishlist/mock_wishlists.json
+
+- docker-compose down
+- docker-compose build
+- docker-compose up -d
+
+- docker compose exec backend python manage.py createsuperuser
+
+- docker compose exec backend python manage.py makemigrations
+- docker compose exec backend python manage.py migrate
+
+python manage.py createsuperuser
+
+python manage.py makemigrations
+python manage.py migrate
+
