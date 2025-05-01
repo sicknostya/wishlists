@@ -7,6 +7,9 @@ import WishlistDetailsPage from './pages/WishlistDetailsPage/WishlistDetailsPage
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import ForbiddenPage from './pages/ForbiddenPage/ForbiddenPage';
 import WishlistEdit from './pages/WishlistEditPage/WishlistEdit';
+import UserProfilePage from './pages/UserProfilePage/UserProfilePage';
+import FriendsPage from './pages/FriendsPage/FriendsPage';
+import MyProfilePage from './pages/MyProfilePage/MyProfilePage';
 
 const App: React.FC = () => {
 	return (
@@ -42,6 +45,33 @@ const App: React.FC = () => {
 					element={
 						<ProtectedRoute>
 							<WishlistEdit />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path='/user/:username'
+					element={
+						<ProtectedRoute>
+							<UserProfilePage />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path='/friends'
+					element={
+						<ProtectedRoute>
+							<FriendsPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path='/profile'
+					element={
+						<ProtectedRoute>
+							<MyProfilePage />
 						</ProtectedRoute>
 					}
 				/>

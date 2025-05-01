@@ -1,5 +1,4 @@
-# wishlists
-Web service for creating and managing wishlists
+# wishlists-react-django
 
 ## for frontend:
 
@@ -33,4 +32,3 @@ python manage.py createsuperuser
 
 python manage.py makemigrations
 python manage.py migrate
-

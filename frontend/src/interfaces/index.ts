@@ -8,6 +8,17 @@ export interface Wishlist {
 	items_data?: any;
 	access_level: AccessLevel;
 	user: string;
+	is_favorite: boolean;
+}
+
+export interface IFriend {
+	id: string;
+	username: string;
+}
+
+export interface IMyUserData {
+	username: string;
+	email: string;
 }
 
 export type AccessLevel = 'public' | 'private' | 'link';

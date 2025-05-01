@@ -1,4 +1,3 @@
-import { Wishlist } from '../../interfaces';
 import api from '../api';
 
 class WishlistService {
@@ -9,6 +8,11 @@ class WishlistService {
 
 	async getMyWishlists() {
 		const response = await api.get('/wishlists/my');
+		return response.data;
+	}
+
+	async getFavoriteWishlists() {
+		const response = await api.get('/wishlists/favorites');
 		return response.data;
 	}
 
@@ -76,8 +80,25 @@ class WishlistService {
 		});
 	}
 
+	async getWishlistsByUser(username: string) {
+		const res = await api.get(`/wishlists/user/${username}/`);
+		return res.data;
+	}
+
 	async deleteWishlist(id: string) {
 		return await api.delete(`/wishlists/${id}/`);
+	}
+
+	async addComment(wishlistId: string, text: string) {
+		return api.post(`/wishlists/${wishlistId}/add_comment/`, { text });
+	}
+
+	async addToFavorite(wishlistId: string) {
+		return api.post(`/wishlists/${wishlistId}/add_to_favorites/`);
+	}
+
+	async removeFromFavorite(wishlistId: string) {
+		return api.post(`/wishlists/${wishlistId}/remove_from_favorites/`);
 	}
 }
 

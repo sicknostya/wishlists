@@ -20,13 +20,20 @@ class WishlistSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
     user = serializers.CharField(source='user.username', read_only=True)
+    is_favorite = serializers.SerializerMethodField()
 
     class Meta:
         model = Wishlist
-        fields = ['id', 'title', 'description', 'image', 'comments', 'items', 'access_level', 'user']
+        fields = ['id', 'title', 'description', 'image', 'comments', 'items', 'access_level', 'user', 'is_favorite']
 
     def get_items(self, obj):
         return WishlistItemSerializer(obj.items.all(), many=True).data
+    
+    def get_is_favorite(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorites.filter(id=request.user.id).exists()
+        return False
 
     def create(self, validated_data):
         try:

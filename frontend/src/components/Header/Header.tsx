@@ -17,6 +17,14 @@ export default function Header() {
 		navigate('/wishlist-create');
 	};
 
+	const handleToFriends = () => {
+		navigate('/friends');
+	};
+
+	const handleToProfile = () => {
+		navigate('/profile');
+	};
+
 	const handleLogout = () => {
 		localStorage.clear();
 		navigate('/login');
@@ -31,8 +39,13 @@ export default function Header() {
 				<span className='header-brand'>Вишлистс</span>
 			</div>
 
-			<div className='header-center' onClick={handleAddGift}>
-				<button className='header-add-button'>Добавить подарок</button>
+			<div className='header-center'>
+				<button className='header-add-button' onClick={handleAddGift}>
+					Добавить подарок
+				</button>
+				<button className='header-friends-button' onClick={handleToFriends}>
+					Друзья
+				</button>
 			</div>
 
 			<div className='header-right'>
@@ -43,11 +56,11 @@ export default function Header() {
 					value={searchQuery}
 					onChange={e => setSearchQuery(e.target.value)}
 				/>
-				<span className='header-icon'>🔔</span>
 				<div className='profile-icon' onClick={() => setShowMenu(!showMenu)}>
 					<span className='header-icon'>👤</span>
 					{showMenu && (
 						<div className='dropdown-menu'>
+							<button onClick={handleToProfile}>Профиль</button>
 							<button onClick={handleLogout}>Выйти</button>
 						</div>
 					)}

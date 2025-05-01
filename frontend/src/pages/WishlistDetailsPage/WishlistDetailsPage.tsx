@@ -1,32 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './WishlistDetailsPage.css';
 import wishlistService from '../../api/wishlists/WishlistService';
 import { Wishlist } from '../../interfaces';
 import Header from '../../components/Header/Header';
-
-// const handleAddComment = async () => {
-// 	if (!commentText.trim()) return;
-
-// 	try {
-// 		await axios.post(
-// 			`http://localhost:8000/wishlists/${id}/comments/`,
-// 			{ text: commentText },
-// 			{ headers: { Authorization: `Bearer ${token}` } }
-// 		);
-// 		setCommentText('');
-// 		// Перезагрузим комментарии
-// 		const res = await axios.get<Wishlist>(
-// 			`http://localhost:8000/api/wishlists/${id}/`,
-// 			{
-// 				headers: { Authorization: `Bearer ${token}` },
-// 			}
-// 		);
-// 		setWishlist(res.data);
-// 	} catch (error) {
-// 		console.error('Ошибка при добавлении комментария', error);
-// 	}
-// };
+import BackButton from '../../components/BackButton/BackButton';
 
 export default function WishlistDetailsPage() {
 	const { id } = useParams();
@@ -40,21 +18,22 @@ export default function WishlistDetailsPage() {
 		setCurrentUser(localStorage.getItem('user') || '');
 	}, []);
 
-	useEffect(() => {
-		const fetchWishlist = async () => {
-			if (!id) return;
-			try {
-				const res = await wishlistService.getWishlist(id);
-				console.log('res', res);
+	const fetchWishlist = async () => {
+		if (!id) return;
+		try {
+			const res = await wishlistService.getWishlist(id);
+			console.log('res', res);
 
-				setWishlist(res);
-			} catch (error: any) {
-				console.error('Ошибка загрузки вишлиста', error);
-				if (error.response && error.response.status === 403) {
-					navigate('/forbidden');
-				}
+			setWishlist(res);
+		} catch (error: any) {
+			console.error('Ошибка загрузки вишлиста', error);
+			if (error.response && error.response.status === 403) {
+				navigate('/forbidden');
 			}
-		};
+		}
+	};
+
+	useEffect(() => {
 		fetchWishlist();
 	}, [id, token]);
 
@@ -74,9 +53,39 @@ export default function WishlistDetailsPage() {
 		navigate(`/wishlists/${id}/edit`);
 	};
 
-	const handleAddFavorite = () => {
-		// TODO: реализовать добавление в избранное
-		alert('Добавлено в избранное!');
+	const handleAddComment = async () => {
+		try {
+			if (wishlist) {
+				await wishlistService.addComment(wishlist.id, commentText);
+				setCommentText('');
+				await fetchWishlist();
+			}
+		} catch (error) {
+			console.error('Ошибка при добавлении комментария', error);
+		}
+	};
+
+	const handleFavoriteToggle = async () => {
+		if (!wishlist || !id) return;
+
+		try {
+			if (wishlist.is_favorite) {
+				await wishlistService.removeFromFavorite(id);
+			} else {
+				await wishlistService.addToFavorite(id);
+			}
+
+			setWishlist(prev => ({
+				...(prev as Wishlist),
+				is_favorite: !(prev as Wishlist).is_favorite,
+			}));
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const handleToUserPage = (user: string) => {
+		navigate(`/user/${user}`);
 	};
 
 	if (!wishlist) return <p>Загрузка...</p>;
@@ -84,11 +93,25 @@ export default function WishlistDetailsPage() {
 	return (
 		<>
 			<Header />
+			<BackButton />
 			<div className='wishlist-detail'>
 				<div className='mainDetailBlock'>
 					<div className='left'>
 						<h2>{wishlist.title}</h2>
-						<h4>Автор: {wishlist.user}</h4>
+						<h4>
+							Автор:{' '}
+							<span
+								className='author-link'
+								onClick={() => handleToUserPage(wishlist.user)}
+								style={{
+									cursor: 'pointer',
+									color: 'blue',
+									textDecoration: 'underline',
+								}}
+							>
+								{wishlist.user}
+							</span>
+						</h4>
 						<img
 							src={wishlist.image}
 							alt={wishlist.title}
@@ -97,8 +120,10 @@ export default function WishlistDetailsPage() {
 					</div>
 					<div className='right'>
 						<p>{wishlist.description}</p>
-						<button onClick={handleAddFavorite} className='favorite-button'>
-							Добавить в избранное
+						<button onClick={handleFavoriteToggle} className='favorite-button'>
+							{wishlist.is_favorite
+								? 'Удалить из избранного'
+								: 'Добавить в избранное'}
 						</button>
 						{wishlist.user === currentUser && (
 							<button onClick={handleToEditPage} className='edit-button'>
@@ -113,23 +138,28 @@ export default function WishlistDetailsPage() {
 					</div>
 				</div>
 
-				<h3>Товары:</h3>
-				<div className='product-list'>
-					{wishlist.items &&
-						(wishlist.items as any).map((item: any) => (
-							<div key={item.link} className='product-card'>
-								<img
-									src={`http://localhost:8000${item.image}`}
-									alt={item.name}
-								/>
-								<h4>{item.name}</h4>
-								<p>{item.description}</p>
-								<a href={item.link} target='_blank' rel='noopener noreferrer'>
-									Перейти в магазин
-								</a>
-							</div>
-						))}
-				</div>
+				{wishlist.items.length ? (
+					<>
+						<h3>Товары:</h3>
+						<div className='product-list'>
+							{(wishlist.items as any).map((item: any) => (
+								<div key={item.link} className='product-card'>
+									<img
+										src={`http://localhost:8000${item.image}`}
+										alt={item.name}
+									/>
+									<h4>{item.name}</h4>
+									<p>{item.description}</p>
+									<a href={item.link} target='_blank' rel='noopener noreferrer'>
+										Перейти в магазин
+									</a>
+								</div>
+							))}
+						</div>
+					</>
+				) : (
+					<></>
+				)}
 
 				<h3>Комментарии:</h3>
 				<ul className='comment-list'>
@@ -147,7 +177,7 @@ export default function WishlistDetailsPage() {
 						onChange={e => setCommentText(e.target.value)}
 						placeholder='Напишите комментарий...'
 					/>
-					<button>Добавить комментарий</button>
+					<button onClick={handleAddComment}>Добавить комментарий</button>
 				</div>
 			</div>
 		</>

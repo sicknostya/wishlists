@@ -6,6 +6,7 @@ import './WishlistCreate.css';
 import WishlistService from '../../api/wishlists/WishlistService';
 import { AccessLevel, Wishlist } from '../../interfaces';
 import Header from '../../components/Header/Header';
+import BackButton from '../../components/BackButton/BackButton';
 
 const WishlistCreate: React.FC = () => {
 	const [title, setTitle] = useState('');
@@ -66,19 +67,29 @@ const WishlistCreate: React.FC = () => {
 			alert('Вишлист создан!');
 			navigate('/wishlists');
 		} catch (error: any) {
+			console.log('ERRROR', error);
+
 			console.error('Ошибка:', error.response?.data || error.message);
-			alert('Ошибка при создании вишлиста');
+			if (error.response?.data) {
+				if (error.response.data?.image) {
+					alert(
+						`Ошибка при создании вишлиста: ${error.response.data.image[0]}`
+					);
+				}
+			} else {
+				alert('Ошибка при создании вишлиста.');
+			}
 		}
 	};
 
 	return (
 		<>
 			<Header />
+			<BackButton />
 			<div className='wishlist-create-container'>
 				<div className='wishlist-create-block'>
 					<h2>Создать вишлист</h2>
 					<form onSubmit={handleSubmit}>
-						{/* Основная информация */}
 						<div className='form-group'>
 							<label htmlFor='title'>Название</label>
 							<input

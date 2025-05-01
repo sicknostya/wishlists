@@ -10,16 +10,19 @@ import WishlistService from '../../api/wishlists/WishlistService';
 export default function WishlistPage() {
 	const [publicWishlists, setPublicWishlists] = useState<Wishlist[]>([]);
 	const [myWishlists, setMyWishlists] = useState<Wishlist[]>([]);
+	const [favoriteWishlists, setFavoriteWishlists] = useState<Wishlist[]>([]);
 	const [searchQuery] = useAtom(searchQueryAtom);
 
 	useEffect(() => {
 		const fetchWishlists = async () => {
-			const [publicData, myData] = await Promise.all([
-				WishlistService.getAllWishlists(), // /wishlists/
-				WishlistService.getMyWishlists(), // /wishlists/my/
+			const [publicData, myData, favoriteData] = await Promise.all([
+				WishlistService.getAllWishlists(),
+				WishlistService.getMyWishlists(),
+				WishlistService.getFavoriteWishlists(),
 			]);
 			setPublicWishlists(publicData);
 			setMyWishlists(myData);
+			setFavoriteWishlists(favoriteData);
 		};
 		fetchWishlists();
 	}, []);
@@ -33,14 +36,33 @@ export default function WishlistPage() {
 		<>
 			<Header />
 			<div className='wishlist-page'>
-				<h1 className='wishlist-title'>Мои вишлисты</h1>
-				<div className='wishlist-grid'>
-					{filter(myWishlists).map(w => (
-						<WishlistCard key={w.id} wishlist={w} />
-					))}
-				</div>
+				{myWishlists.length ? (
+					<>
+						<h2 className='wishlist-title'>Мои вишлисты</h2>
+						<div className='wishlist-grid'>
+							{filter(myWishlists).map(w => (
+								<WishlistCard key={w.id} wishlist={w} />
+							))}
+						</div>
+					</>
+				) : (
+					<></>
+				)}
 
-				<h1 className='wishlist-title'>Все вишлисты</h1>
+				{favoriteWishlists.length ? (
+					<>
+						<h2 className='wishlist-title'>Избранные вишлисты</h2>
+						<div className='wishlist-grid'>
+							{filter(favoriteWishlists).map(w => (
+								<WishlistCard key={w.id} wishlist={w} />
+							))}
+						</div>
+					</>
+				) : (
+					<></>
+				)}
+
+				<h2 className='wishlist-title'>Все вишлисты</h2>
 				<div className='wishlist-grid'>
 					{filter(publicWishlists).map(w => (
 						<WishlistCard key={w.id} wishlist={w} />

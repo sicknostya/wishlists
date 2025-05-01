@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'wishlists',
     'auth_service',
+	'friends',
+	'users',
 ]
 
 SIMPLE_JWT = {

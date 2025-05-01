@@ -12,8 +12,6 @@ export const login = async (
 			email,
 			password,
 		});
-		console.log('response', response);
-
 		localStorage.setItem('user', JSON.parse(response.config.data).username);
 		localStorage.setItem('access', response.data.access);
 		localStorage.setItem('refresh', response.data.refresh);
@@ -49,6 +47,32 @@ export const register = async (
 		) {
 			alert(error.response.data?.password[0]);
 		}
+	}
+};
+
+export const getProfile = async () => {
+	try {
+		return await api.get('/auth/me/');
+	} catch (error) {
+		console.log('error', error);
+		alert(error);
+	}
+};
+
+export const changePassword = async (
+	oldPassword: string,
+	newPassword: string
+) => {
+	try {
+		return await api.post('/auth/change-password/', {
+			body: JSON.stringify({
+				old_password: oldPassword,
+				new_password: newPassword,
+			}),
+		});
+	} catch (error) {
+		console.log('error', error);
+		alert(error);
 	}
 };
 
