@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const BASE_URL = 'http://localhost:8000';
+const AUTH_PATHS = ['/login/', '/register/', '/token/refresh/'];
 
 const api = axios.create({
 	baseURL: BASE_URL,
@@ -19,6 +20,10 @@ api.interceptors.response.use(
 	async err => {
 		const originalRequest = err.config;
 
+		const isAuthPath = AUTH_PATHS.some(path =>
+			originalRequest.url.includes(path)
+		);
+
 		if (err.response?.status === 401 && !localStorage.getItem('refresh')) {
 			if (
 				!(
@@ -34,7 +39,8 @@ api.interceptors.response.use(
 		if (
 			err.response?.status === 401 &&
 			!originalRequest._retry &&
-			localStorage.getItem('refresh')
+			localStorage.getItem('refresh') &&
+			!isAuthPath
 		) {
 			originalRequest._retry = true;
 			try {
